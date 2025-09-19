@@ -26,9 +26,9 @@ Agile teams spend hours after sprint ceremonies turning loosely phrased discussi
 
 ### Pipeline
 1) **Transcript → candidate stories**  
-   Light NLP + LLM structuring to extract **user stories** (As a / I want / So that), **GWT acceptance criteria**, **risks**, and **action items**, each with **timestamped quotes** for evidence. If owner/date/details aren’t explicit, fields remain **blank** and are labeled **needs-clarification**.
+   Light NLP + LLM structuring to extract **user stories** (As a / I want / So that), **risks**, and **action items**, each with **timestamped quotes** for evidence. If owner/date/details aren’t explicit, fields remain **blank** and are labeled **needs-clarification**.
 
-2) **RAG over team KB for owner suggestions**  
+2) **RAG over team specifications for owner suggestions**  
    Build a local vector index over member **skills/experience summaries** and **past story embeddings** (title, tags, components). For each story, retrieve top-k candidate members and compute a **score**:
    - **Competence**: skill overlap & recency (weight α)  
    - **Availability**: capacity this sprint (weight β)  
@@ -40,7 +40,7 @@ Agile teams spend hours after sprint ceremonies turning loosely phrased discussi
    Streamlit UI shows each story with: structured fields, quotes/timestamps, and a ranked list of suggested owners. PO/Scrum Master can **edit** any field, override the owner, add labels, or defer. One click to **export** Jira-compatible CSV (API push optional post-MVP).
 
 4) **Learning loop**  
-   After export, capture final decisions + outcomes (e.g., cycle time, reassignments) into `history`. Over time, tune weights (α, β, γ, δ) via a simple supervised model or bandit using observed outcomes.
+   After export, capture final decisions + outcomes (e.g., cycle time, reassignments) into `history`. Over time, tune weights (α, β, γ, δ) via a simple supervised model using observed outcomes.
 
 ### Why this helps
 - **End-to-end path to action:** Not just summaries—**Scrum-structured artifacts + owner recommendations** backed by evidence and capacity.  
@@ -53,12 +53,11 @@ Agile teams spend hours after sprint ceremonies turning loosely phrased discussi
 We will validate two model steps in notebooks (no full app yet):
 
 1) **Story extraction prompts**  
-   Compare 3 variants: **Strict Template**, **Few-Shot**, **Chain-of-Evidence** (extract quotes → structure).  
    Metrics on 4–6 short transcripts with a small gold set: precision/recall for stories, acceptance-criteria completeness, and “evidence present?” rate.
 
 2) **Assignment reasoning (RAG + scoring)**  
-   For each story, show the model the **top-k member cards** (skill snippets + history) and request a **ranked recommendation** in strict JSON, **forbidden** to cite info not in the cards.  
-   Human raters judge **plausibility** and **justification quality** (Likert 1–5).  
+   For each story, show the model the **top-k member cards** (skill snippets + history) and request a **ranked recommendation**.
+   Human raters judge **plausibility** and **justification quality**.  
    Sanity checks: set a candidate’s capacity to zero → model should drop/penalize; remove a key skill → model should explain mismatch.
 
 
